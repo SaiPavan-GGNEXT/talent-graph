@@ -1,0 +1,17 @@
+# Render blueprint — https://render.com/docs/blueprint-spec
+# One free web service builds the Dockerfile (frontend + Go server in one
+# image). Set the two secret env vars in the Render dashboard on first deploy;
+# they are intentionally not stored in the repo.
+services:
+  - type: web
+    name: talentgraph
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: NEO4J_URI
+        sync: false # paste your bolt+s://…databases.cognodb.com URI in the dashboard
+      - key: NEO4J_USER
+        value: cognodb
+      - key: NEO4J_PASSWORD
+        sync: false # paste your CognoDB password in the dashboard

@@ -1,0 +1,13 @@
+# secrets — never commit connection details
+.env
+.env.*
+!.env.example
+
+# build output
+frontend/dist/
+frontend/node_modules/
+bin/
+
+# editor/os noise
+.DS_Store
+*.log
