@@ -54,18 +54,25 @@ func (r *recorder) Header() http.Header        { return r.header }
 func (r *recorder) WriteHeader(status int)     { r.status = status }
 func (r *recorder) Write(p []byte) (int, error) { return r.buf.Write(p) }
 
+// prewarmHeader marks internal cache-refresh requests; it forces re-execution
+// so the background warmer can renew entries before they expire. The outer
+// middleware strips it from external traffic.
+const prewarmHeader = "X-Prewarm"
+
 // wrap serves GET responses from cache, recording on miss. Only 200s are
 // cached, so errors and 503s always reflect live state.
 func (c *ttlCache) wrap(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.URL.RequestURI()
 
-		c.mu.RLock()
-		entry, ok := c.entries[key]
-		c.mu.RUnlock()
-		if ok && time.Now().Before(entry.expires) {
-			serveCached(w, entry, "HIT")
-			return
+		if r.Header.Get(prewarmHeader) == "" {
+			c.mu.RLock()
+			entry, ok := c.entries[key]
+			c.mu.RUnlock()
+			if ok && time.Now().Before(entry.expires) {
+				serveCached(w, entry, "HIT")
+				return
+			}
 		}
 
 		result, _, _ := c.group.Do(key, func() (any, error) {
@@ -81,6 +88,28 @@ func (c *ttlCache) wrap(next http.HandlerFunc) http.HandlerFunc {
 		})
 		serveCached(w, result.(cacheEntry), "MISS")
 	}
+}
+
+// prewarm keeps the given paths permanently warm: it refreshes them once at
+// startup and then on every tick, so user requests virtually never pay a
+// cache miss. Failures are harmless — the next real request just misses.
+func (c *ttlCache) prewarm(h http.Handler, paths []string, every time.Duration) {
+	warm := func() {
+		for _, p := range paths {
+			req, err := http.NewRequest(http.MethodGet, p, nil)
+			if err != nil {
+				continue
+			}
+			req.Header.Set(prewarmHeader, "1")
+			h.ServeHTTP(&recorder{header: http.Header{}, status: http.StatusOK}, req)
+		}
+	}
+	go func() {
+		warm()
+		for range time.Tick(every) {
+			warm()
+		}
+	}()
 }
 
 func serveCached(w http.ResponseWriter, e cacheEntry, state string) {

@@ -28,7 +28,10 @@ func NewServer(store *graph.Store, staticDir string) *Server {
 // so bursts of traffic don't overwhelm the small free-tier database.
 func (s *Server) Routes() http.Handler {
 	mux := http.NewServeMux()
-	cache := newTTLCache(60 * time.Second)
+	// The dataset only changes when the seed script runs, so a long TTL is
+	// safe; the prewarmer below renews entries before they expire, keeping
+	// the hot endpoints at cache-hit latency permanently.
+	cache := newTTLCache(15 * time.Minute)
 
 	mux.HandleFunc("GET /api/health", s.handleHealth)
 	mux.HandleFunc("GET /api/stats", cache.wrap(s.handleStats))
@@ -42,6 +45,8 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /api/team-plan", s.handleTeamPlan)
 
 	mux.HandleFunc("/", s.handleStatic)
+
+	cache.prewarm(mux, []string{"/api/stats", "/api/people", "/api/skills", "/api/graph"}, 10*time.Minute)
 
 	var h http.Handler = mux
 	h = requestTimeout(15*time.Second, h)

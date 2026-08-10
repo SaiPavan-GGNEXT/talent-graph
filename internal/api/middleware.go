@@ -14,6 +14,8 @@ import (
 // fully self-contained, so nothing external is ever legitimate.
 func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// reserved for the internal cache warmer; never honoured from outside
+		r.Header.Del("X-Prewarm")
 		h := w.Header()
 		h.Set("Content-Security-Policy",
 			"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "+
