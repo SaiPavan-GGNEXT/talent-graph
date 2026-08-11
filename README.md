@@ -259,6 +259,11 @@ roles, frequent collaborators, mentoring lines:
 
 ![Person profile](docs/profile.png)
 
+**Find experts** — ranked by proficiency, with adjacent-skill suggestions;
+adding a starting person annotates each expert with collaboration distance:
+
+![Find experts](docs/experts.png)
+
 **Intro paths** — the shortest chain of shared projects connecting two people:
 
 ![Intro path](docs/intro-path.png)
