@@ -240,4 +240,31 @@ into the image or the repo.
 
 ## Screenshots
 
-_Add screenshots of the home page, experts view, intro path and team builder here._
+**Home — the live collaboration fabric** (hand-rolled force-directed canvas; hover
+highlights a neighbourhood, clicking a person opens their profile):
+
+![Home with network visualisation](docs/home-network.png)
+
+![Home overview with explore cards](docs/home-overview.png)
+
+**Directory** — everyone in the graph with their strongest skills, and
+search-as-you-type:
+
+![Directory](docs/directory.png)
+
+![Directory search](docs/directory-search.png)
+
+**Profile** — skills with proficiency meters, project history with clients and
+roles, frequent collaborators, mentoring lines:
+
+![Person profile](docs/profile.png)
+
+**Intro paths** — the shortest chain of shared projects connecting two people:
+
+![Intro path](docs/intro-path.png)
+
+**Team builder** — pick required skills, get the smallest team covering them all:
+
+![Team builder](docs/team-builder.png)
+
+![Team builder result](docs/team-builder-result.png)
