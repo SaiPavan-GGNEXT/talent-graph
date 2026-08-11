@@ -15,7 +15,7 @@ org charts and HR spreadsheets can't:
 Built with **Go** (official `neo4j-go-driver`) + **React** on **CognoDB**
 (openCypher over Bolt) for the Wexa AI take-home assignment.
 
-> **Hosted demo:** <https://talentgraph-6hqy.onrender.com> · **Screen recording:** _add link here_
+> **Hosted demo:** <https://talentgraph-6hqy.onrender.com> · **Screen recording:** [docs/demo.mp4](docs/demo.mp4) (GitHub plays it inline)
 >
 > The demo runs on Render's free tier, which sleeps after ~15 minutes of
 > inactivity — the first request may take ~30–60 s to wake the service.
