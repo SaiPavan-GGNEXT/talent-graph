@@ -324,11 +324,13 @@ func (s *Store) Experts(ctx context.Context, skill, fromID string) ([]Expert, er
 		WITH sk, hs, p, collect(other.name)[..3] AS topSkills
 		OPTIONAL MATCH (me:Person {id: $from})
 		OPTIONAL MATCH dist = shortestPath((me)-[:WORKED_ON*..6]-(p))
-		RETURN p, topSkills, hs.level AS level, hs.years AS years,
+		WITH p, topSkills, hs.level AS level, hs.years AS years,
+		     min(length(dist)) AS plen
+		RETURN p, topSkills, level, years,
 		       CASE
 		         WHEN $from = '' THEN 0
-		         WHEN dist IS NULL THEN -1
-		         ELSE length(dist) / 2
+		         WHEN plen IS NULL THEN -1
+		         ELSE plen / 2
 		       END AS distance
 		ORDER BY level DESC, years DESC
 		LIMIT 30`,
